@@ -12,7 +12,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 /**
- * Created by ravi on 17/11/17.
+ * Created by anandharajr on 21-06-18.
  */
 
 public class MyDividerItemDecoration extends RecyclerView.ItemDecoration {

@@ -1,6 +1,5 @@
 package com.anandharajr.mysample;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 
@@ -20,11 +19,7 @@ import static org.junit.Assert.assertNotEquals;
 public class ConfigurationUnitTest {
 
     @Mock
-    Context mMockContext;
-
-    @Mock
-    Activity mMockActivity;
-
+    private Context mMockContext;
 
     @Test
     public void progressDialogConstructorNotNull() {

@@ -1,5 +1,6 @@
 package com.anandharajr.mysample.views;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +9,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -43,7 +46,12 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+/**
+ * Created by anandharajr on 21-06-18.
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    boolean doubleBackToExitPressedOnce = false;
+    private View ContainerMainLayout;
     private ProgressDialog progressDialog;
     private List<Datum> datumArrayList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -65,13 +73,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         setTitle(R.string.toolbar_title);
         initViews();
-        db = new SQLiteDBHelper(this);
+        db = new SQLiteDBHelper(mContext);
         mAdapter = new UsersAdapter(mContext, datumArrayList, new OnItemUsersClickListener() {
             @Override
             public void onItemClick(Datum item) {
                 Toast.makeText(mContext, item.getFirst_name(), Toast.LENGTH_LONG).show();
             }
         });
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -83,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void LoadUserDataToDb() {
         if (Configuration.checkConnection(mContext)) {
+            progressDialog.show();
             UserService = new UserServiceAPI();
             UserService.FetchUsers(1, new IUserDataCallbacks() {
                 @Override
@@ -92,11 +102,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i = 1; i <= value.getTotal_pages(); i++) {
                         SaveEachPageToDb(i);
                     }
+                    if (progressDialog != null) progressDialog.cancel();
                 }
+
 
                 @Override
                 public void onError(@NonNull Throwable throwable) {
-
+                    if (progressDialog != null) progressDialog.cancel();
                 }
             });
         }
@@ -107,13 +119,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         UserService.FetchUsers(index, new IUserDataCallbacks() {
             @Override
             public void onSuccess(@NonNull Users value) {
-
-                new ImageConversionAsyncTask(value, value.getTotal_pages(), value.getPage(), value.getTotal()).execute();
+                new ImageConversionAsyncTask(value).execute();
             }
 
             @Override
             public void onError(@NonNull Throwable throwable) {
-
+                if (progressDialog != null) progressDialog.cancel();
             }
         });
     }
@@ -126,14 +137,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
+        if (progressDialog != null) progressDialog.cancel();
     }
 
     @Override
     public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
 
+        this.doubleBackToExitPressedOnce = true;
+        Snackbar snackbar = Snackbar.make(ContainerMainLayout, "Please click BACK again to exit", Snackbar.LENGTH_LONG);
+        snackbar.show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
     }
 
     private void initViews() {
+        ContainerMainLayout = findViewById(R.id.container_main_layout);
         recyclerView = findViewById(R.id.recycler_view);
         CurrentPageNoTV = (TextView) findViewById(R.id.current_page_count_tv);
         Button previousBTN = (Button) findViewById(R.id.previous_action_btn);
@@ -162,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mCurrentPageCount = mCurrentPageCount - 1;
                     fetchUsers(mCurrentPageCount);
                 } else {
-                    Toast.makeText(mContext, "No More Previous Pages", Toast.LENGTH_LONG).show();
+                    Configuration.warningAlertDialog(mContext, getString(R.string.warning_previous_pages));
                 }
                 break;
             case R.id.next_action_btn:
@@ -170,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mCurrentPageCount = mCurrentPageCount + 1;
                     fetchUsers(mCurrentPageCount);
                 } else {
-                    Toast.makeText(mContext, "No More Next Pages", Toast.LENGTH_LONG).show();
+                    Configuration.warningAlertDialog(mContext, getString(R.string.warning_next_pages));
                 }
                 break;
         }
@@ -178,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void fetchUsers(int pageCount) {
         progressDialog.show();
-
         UserService = Configuration.checkConnection(mContext) ? new UserServiceAPI() : new UserServiceLocal(mContext);
         UserService.FetchUsers(pageCount, new IUserDataCallbacks() {
             @Override
@@ -195,11 +222,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    @SuppressLint("DefaultLocale")
     private void onUserSuccessListener(Users value) {
-        // new SQLiteDBHelper(mContext).insertImage(value);
         mTotalPageCount = value.getTotal_pages();
         CurrentPageNoTV.setText(String.format("%d / %d", value.getPage(), value.getTotal_pages()));
-        Integer total = value.getTotal();
         datumArrayList.clear();
         datumArrayList.addAll(value.getData());
         mAdapter.notifyDataSetChanged();
@@ -209,20 +235,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void onUserFailureListener(Throwable throwable) {
         if (progressDialog != null) progressDialog.cancel();
-        Toast.makeText(mContext, throwable.getMessage(), Toast.LENGTH_LONG).show();
+        Configuration.warningAlertDialog(mContext, throwable.getMessage());
+
     }
 
 
+    @SuppressLint("StaticFieldLeak")
     private class ImageConversionAsyncTask extends AsyncTask<Void, Void, Integer> {
         private Users UserImageList;
-        private int mTotalPageCount, page, total;
 
 
-        ImageConversionAsyncTask(Users value, int mTotalPageCount, Integer page, Integer total) {
+        ImageConversionAsyncTask(Users value) {
             this.UserImageList = value;
-            this.mTotalPageCount = mTotalPageCount;
-            this.page = page;
-            this.total = total;
+
         }
 
 
@@ -256,8 +281,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
-
-
         }
     }
 

@@ -14,20 +14,21 @@ import com.anandharajr.mysample.model.Users;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Created by anandharajr on 21-06-18.
+ */
 public class SQLiteDBHelper extends SQLiteOpenHelper {
 
-    private static SQLiteDBHelper mInstance;
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "USERSMASTER.db";
-    public static final String TABLE_USER = "users";
-    public static final String KEY_PAGE_ID = "page_id";
-    public static final String KEY_TOTAL_PAGE_COUNT = "total_page_count";
-    public static final String KEY_FIRST_NAME = "first_name";
-    public static final String KEY_LAST_NAME = "last_name";
-    public static final String KEY_DATA_ID = "data_id";
-    public static final String KEY_IMAGE_PATH = "avatar_image_path";
-    public static final String KEY_CAROUSEL_IMAGE_ARRAY = "avatar_image_array";
+    private static final String TABLE_USER = "users";
+    private static final String KEY_PAGE_ID = "page_id";
+    private static final String KEY_TOTAL_PAGE_COUNT = "total_page_count";
+    private static final String KEY_FIRST_NAME = "first_name";
+    private static final String KEY_LAST_NAME = "last_name";
+    private static final String KEY_DATA_ID = "data_id";
+    private static final String KEY_IMAGE_PATH = "avatar_image_path";
+    private static final String KEY_CAROUSEL_IMAGE_ARRAY = "avatar_image_array";
 
     private static final String CREATE_USERS_IMAGES_TABLE =
             "CREATE TABLE " + TABLE_USER + " (" +
@@ -40,7 +41,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                     KEY_CAROUSEL_IMAGE_ARRAY + " BLOB  );";
 
 
-
     public SQLiteDBHelper(Context context) {
 
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -48,7 +48,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        mInstance=SQLiteDBHelper.this;
         db.execSQL(CREATE_USERS_IMAGES_TABLE);
     }
 
@@ -134,13 +133,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         db.execSQL(CREATE_USERS_IMAGES_TABLE);
 
-    }
-
-    public static SQLiteDBHelper getInstance(Context ctx){
-        if(mInstance==null){
-            mInstance = new SQLiteDBHelper(ctx);
-        }
-        return mInstance;
     }
 
 }

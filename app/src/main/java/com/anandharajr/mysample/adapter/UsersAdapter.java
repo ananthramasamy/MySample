@@ -15,10 +15,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
-
+/**
+ * Created by anandharajr on 21-06-18.
+ */
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
-
 
     private final List<Datum> items;
     private final OnItemUsersClickListener listener;
@@ -67,9 +68,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         .load(item.getAvatar())
                         .apply(RequestOptions.circleCropTransform())
                         .into(AvatarIV);
-            }
-            else
-            {
+            } else {
                 AvatarIV.setImageBitmap(item.getBitmapAvatar());
             }
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -80,4 +79,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             });
         }
     }
+
+
 }

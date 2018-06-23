@@ -2,11 +2,11 @@ package com.anandharajr.mysample.interfaces;
 
 import android.support.annotation.NonNull;
 
-import com.anandharajr.mysample.model.Datum;
-import com.anandharajr.mysample.model.Users;
+/*
+ * Created by anandharajr on 21-06-18.
+ */
 
-import java.util.ArrayList;
-import java.util.List;
+import com.anandharajr.mysample.model.Users;
 
 public interface IUserDataCallbacks {
     void onSuccess(@NonNull Users value);

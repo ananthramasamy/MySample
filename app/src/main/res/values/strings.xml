@@ -5,4 +5,7 @@
     <string name="back">Back</string>
     <string name="format_number">%1$d</string>
     <string name="Loading">Loading</string>
+    <string name="close">Close</string>
+    <string name="warning_previous_pages">No More Previous Pages</string>
+    <string name="warning_next_pages">No More Next Pages</string>
 </resources>
