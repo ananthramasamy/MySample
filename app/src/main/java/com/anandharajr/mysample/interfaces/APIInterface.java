@@ -7,7 +7,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
- * Created by anandharajr on 21-06-18.
+ * Created by anandharajr on 23-06-18.
  */
 
 public interface APIInterface {

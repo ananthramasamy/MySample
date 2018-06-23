@@ -8,7 +8,7 @@ import com.anandharajr.mysample.interfaces.IUserDataCallbacks;
 import com.anandharajr.mysample.interfaces.IUserService;
 import com.anandharajr.mysample.model.Users;
 /**
- * Created by anandharajr on 21-06-18.
+ * Created by anandharajr on 23-06-18.
  */
 public class UserServiceLocal implements IUserService {
 

@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 
 import com.anandharajr.mysample.R;
 /**
- * Created by anandharajr on 21-06-18.
+ * Created by anandharajr on 23-06-18.
  */
 public class Configuration {
     private static AlertDialog mAlertDialog;

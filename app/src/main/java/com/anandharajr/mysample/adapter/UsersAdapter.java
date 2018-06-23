@@ -16,7 +16,7 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 /**
- * Created by anandharajr on 21-06-18.
+ * Created by anandharajr on 23-06-18.
  */
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {

@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 /**
- * Created by anandharajr on 21-06-18.
+ * Created by anandharajr on 23-06-18.
  */
 public class Datum {
 
