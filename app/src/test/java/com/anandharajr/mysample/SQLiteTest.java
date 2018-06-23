@@ -24,13 +24,11 @@ public class SQLiteTest extends AndroidTestCase {
 
     private SQLiteDatabase dbWrite;
     private SQLiteDatabase dbRead;
-
     private ContentValues contentValues;
 
     protected void setUp() throws Exception {
         super.setUp();
         SQLiteDBHelper dbHelper = new SQLiteDBHelper(this.getContext());
-
         dbWrite = dbHelper.getWritableDatabase();
         dbRead = dbHelper.getReadableDatabase();
         contentValues = new ContentValues();
@@ -49,8 +47,6 @@ public class SQLiteTest extends AndroidTestCase {
         dbWrite.insert(TABLE_USER, null, contentValues);
 
         String selectQuery = "SELECT * FROM " + TABLE_USER;
-
-        Log.i("tag", selectQuery);
         Cursor c = dbRead.rawQuery(selectQuery, null);
 
         if (c != null) {
@@ -63,14 +59,6 @@ public class SQLiteTest extends AndroidTestCase {
             String LastName = c.getString(c.getColumnIndex(KEY_LAST_NAME));
             String ImagePath = c.getString(c.getColumnIndex(KEY_IMAGE_PATH));
             String ImageArray = c.getString(c.getColumnIndex(KEY_CAROUSEL_IMAGE_ARRAY));
-
-            Log.i("pageID: ", pageID);
-            Log.i("TotalPageCount: ", TotalPageCount);
-            Log.i("dataID: ", dataID);
-            Log.i("FirstName: ", FirstName);
-            Log.i("LastName: ", LastName);
-            Log.i("ImagePath: ", ImagePath);
-            Log.i("ImageArray: ", ImageArray);
 
             assertEquals(pageID, "1");
             assertEquals(TotalPageCount, "4");
