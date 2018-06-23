@@ -16,9 +16,5 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
     }
-    @Test
-    public void urlToBitMap() throws Exception {
-        Bitmap bitmap = Helper.getBitmapFromURL("https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg");
-        assertNotEquals(null, bitmap);
-    }
+
 }
