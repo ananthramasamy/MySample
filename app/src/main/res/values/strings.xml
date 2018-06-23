@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Sample</string>
+    <string name="toolbar_title">My Sample</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="format_number">%1$d</string>
+    <string name="Loading">Loading</string>
+</resources>
