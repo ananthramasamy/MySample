@@ -26,4 +26,12 @@ public class ConfigurationUnitTest {
         ProgressDialog progressDialog = Configuration.generateProgressDialog(mMockContext, false);
         assertNotEquals(progressDialog, null);
     }
+
+
+    @Test
+    public void getCarsListOnSuccessEmptyList() throws Exception {
+
+    }
+
+
 }

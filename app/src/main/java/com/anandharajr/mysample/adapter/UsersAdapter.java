@@ -48,16 +48,19 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
         return items.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView FirstNameTV, LastNameTV;
         private ImageView AvatarIV;
+
 
         private ViewHolder(View itemView) {
             super(itemView);
             FirstNameTV = itemView.findViewById(R.id.first_name_tv);
             LastNameTV = itemView.findViewById(R.id.last_name_tv);
             AvatarIV = itemView.findViewById(R.id.avatar_iv);
+
+
         }
 
         private void bind(final Datum item, final OnItemUsersClickListener listener) {

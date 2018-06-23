@@ -6,9 +6,13 @@
     <string name="format_number">%1$d</string>
     <string name="Loading">Loading</string>
     <string name="close">Close</string>
+    <string name="retry">Retry</string>
     <string name="warning_previous_pages">No More Previous Pages</string>
     <string name="warning_next_pages">No More Next Pages</string>
     <string name="first_name">First Name</string>
     <string name="page_id">page ID</string>
     <string name="last_name">Last Name</string>
+    <string name="element_text">Element</string>
+    <string name="item_element_text">This is element #</string>
+    <string name="middle">This is the middle!</string>
 </resources>

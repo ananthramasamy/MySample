@@ -1,8 +1,10 @@
 package com.anandharajr.mysample.views;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,12 +21,12 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.anandharajr.mysample.R;
 import com.anandharajr.mysample.adapter.UsersAdapter;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private IUserService UserService;
     private SQLiteDBHelper db;
     private BottomSheetBehavior sheetBehavior;
-
+    private AlertDialog mAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void LoadUserDataToDb() {
         if (Configuration.checkConnection(mContext)) {
-
             UserService = new UserServiceAPI();
             UserService.FetchUsers(1, new IUserDataCallbacks() {
                 @Override
@@ -123,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i = 1; i <= value.getTotal_pages(); i++) {
                         SaveEachPageToDb(i);
                     }
+
                 }
                 @Override
                 public void onError(@NonNull Throwable throwable) {
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        //if (progressDialog != null) progressDialog.cancel();
+        if (progressDialog != null) progressDialog.cancel();
     }
 
     @Override
@@ -216,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.previous_action_btn:
                 if (mCurrentPageCount > 1) {
                     mCurrentPageCount = mCurrentPageCount - 1;
+                    if (progressDialog != null) progressDialog.show();
                     fetchUsers(mCurrentPageCount);
                 } else {
                     Configuration.warningAlertDialog(mContext, getString(R.string.warning_previous_pages));
@@ -224,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.next_action_btn:
                 if (mCurrentPageCount < mTotalPageCount) {
                     mCurrentPageCount = mCurrentPageCount + 1;
+                    if (progressDialog != null) progressDialog.show();
                     fetchUsers(mCurrentPageCount);
                 } else {
                     Configuration.warningAlertDialog(mContext, getString(R.string.warning_next_pages));
@@ -236,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void fetchUsers(int pageCount) {
-        if (progressDialog != null) progressDialog.show();
         UserService = Configuration.checkConnection(mContext) ? new UserServiceAPI() : new UserServiceLocal(mContext);
         UserService.FetchUsers(pageCount, new IUserDataCallbacks() {
             @Override
@@ -260,14 +263,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         datumArrayList.clear();
         datumArrayList.addAll(value.getData());
         mAdapter.notifyDataSetChanged();
-        if (progressDialog != null) progressDialog.cancel();
+       if (progressDialog != null) progressDialog.cancel();
     }
 
 
     private void onUserFailureListener(Throwable throwable) {
         if (progressDialog != null) progressDialog.cancel();
-        Configuration.warningAlertDialog(mContext, throwable.getMessage());
 
+        if (TextUtils.equals(throwable.getMessage(),"Internet is required for first run")){
+            try {
+                if (mAlertDialog != null) {
+                    if (mAlertDialog.isShowing()) {
+                        mAlertDialog.dismiss();
+                    }
+                }
+                mAlertDialog = new AlertDialog.Builder(mContext).setCancelable(false)
+                        .setMessage(throwable.getMessage()).setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                LoadUserDataToDb();
+                                fetchUsers(mCurrentPageCount);
+                            }
+                        }).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else {
+            Configuration.warningAlertDialog(mContext, throwable.getMessage());
+        }
     }
 
 
@@ -312,8 +336,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
-    private Bitmap getBitmapFromURL(String urlPath) {
+    public static Bitmap getBitmapFromURL(String urlPath) {
         HttpURLConnection connection;
         int serverResponseCode;
         try {
@@ -339,5 +362,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return null;
     }
+
 
 }
