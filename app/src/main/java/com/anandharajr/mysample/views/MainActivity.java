@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,6 +21,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,8 @@ import com.anandharajr.mysample.utils.Configuration;
 import com.anandharajr.mysample.utils.MyDividerItemDecoration;
 import com.anandharajr.mysample.utils.UserServiceAPI;
 import com.anandharajr.mysample.utils.UserServiceLocal;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -54,14 +59,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private View ContainerMainLayout;
     private ProgressDialog progressDialog;
     private List<Datum> datumArrayList = new ArrayList<>();
-    private RecyclerView recyclerView;
+    private RecyclerView UserRecyclerView;
     private UsersAdapter mAdapter;
     private Context mContext;
     private int mCurrentPageCount = 1;
     private int mTotalPageCount = 1;
-    private TextView CurrentPageNoTV;
+    private TextView CurrentPageNoTV,FirstNameTV,LastNameTV;
+    private ImageView UserProfileIV;
     private IUserService UserService;
     private SQLiteDBHelper db;
+    private BottomSheetBehavior sheetBehavior;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,22 +85,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter = new UsersAdapter(mContext, datumArrayList, new OnItemUsersClickListener() {
             @Override
             public void onItemClick(Datum item) {
-                Toast.makeText(mContext, item.getFirst_name(), Toast.LENGTH_LONG).show();
+                FirstNameTV.setText(item.getFirst_name());
+                LastNameTV.setText(item.getLast_name());
+                if (item.getBitmapAvatar() == null) {
+                    Glide.with(mContext)
+                            .load(item.getAvatar())
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(UserProfileIV);
+                } else {
+                    UserProfileIV.setImageBitmap(item.getBitmapAvatar());
+                }
+
+               sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
             }
         });
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new MyDividerItemDecoration(this, DividerItemDecoration.VERTICAL, 36));
-        recyclerView.setAdapter(mAdapter);
+        UserRecyclerView.setLayoutManager(mLayoutManager);
+        UserRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        UserRecyclerView.addItemDecoration(new MyDividerItemDecoration(this, DividerItemDecoration.VERTICAL, 36));
+        UserRecyclerView.setAdapter(mAdapter);
+        if (progressDialog != null) progressDialog.show();
         LoadUserDataToDb();
         fetchUsers(mCurrentPageCount);
     }
 
     private void LoadUserDataToDb() {
         if (Configuration.checkConnection(mContext)) {
-            progressDialog.show();
+
             UserService = new UserServiceAPI();
             UserService.FetchUsers(1, new IUserDataCallbacks() {
                 @Override
@@ -102,10 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i = 1; i <= value.getTotal_pages(); i++) {
                         SaveEachPageToDb(i);
                     }
-                    if (progressDialog != null) progressDialog.cancel();
                 }
-
-
                 @Override
                 public void onError(@NonNull Throwable throwable) {
                     if (progressDialog != null) progressDialog.cancel();
@@ -124,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onError(@NonNull Throwable throwable) {
-                if (progressDialog != null) progressDialog.cancel();
+               if (progressDialog != null) progressDialog.cancel();
             }
         });
     }
@@ -137,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        if (progressDialog != null) progressDialog.cancel();
+        //if (progressDialog != null) progressDialog.cancel();
     }
 
     @Override
@@ -161,14 +179,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initViews() {
+        LinearLayout layoutBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
+        sheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
+        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         ContainerMainLayout = findViewById(R.id.container_main_layout);
-        recyclerView = findViewById(R.id.recycler_view);
+
+        Button actionModeCloseBTN = (Button) findViewById(R.id.action_mode_close_button);
+        FirstNameTV=(TextView)findViewById(R.id.first_name_tv);
+        LastNameTV=(TextView) findViewById(R.id.last_name_tv);
+        UserProfileIV=(ImageView)findViewById(R.id.profile_action_iv);
+
+        UserRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         CurrentPageNoTV = (TextView) findViewById(R.id.current_page_count_tv);
         Button previousBTN = (Button) findViewById(R.id.previous_action_btn);
         Button nextBTN = (Button) findViewById(R.id.next_action_btn);
         previousBTN.setOnClickListener(this);
         nextBTN.setOnClickListener(this);
-        WhiteTransparentBar(recyclerView);
+        actionModeCloseBTN.setOnClickListener(this);
+        WhiteTransparentBar(UserRecyclerView);
     }
 
 
@@ -201,11 +229,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Configuration.warningAlertDialog(mContext, getString(R.string.warning_next_pages));
                 }
                 break;
+            case R.id.action_mode_close_button:
+                sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                break;
         }
     }
 
     private void fetchUsers(int pageCount) {
-        progressDialog.show();
+        if (progressDialog != null) progressDialog.show();
         UserService = Configuration.checkConnection(mContext) ? new UserServiceAPI() : new UserServiceLocal(mContext);
         UserService.FetchUsers(pageCount, new IUserDataCallbacks() {
             @Override
@@ -244,13 +275,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private class ImageConversionAsyncTask extends AsyncTask<Void, Void, Integer> {
         private Users UserImageList;
 
-
         ImageConversionAsyncTask(Users value) {
             this.UserImageList = value;
 
         }
-
-
         @Override
         protected Integer doInBackground(Void... params) {
             List<Datum> datumArrayList = new ArrayList<>();

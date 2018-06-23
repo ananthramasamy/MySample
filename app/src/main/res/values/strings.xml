@@ -8,4 +8,7 @@
     <string name="close">Close</string>
     <string name="warning_previous_pages">No More Previous Pages</string>
     <string name="warning_next_pages">No More Next Pages</string>
+    <string name="first_name">First Name</string>
+    <string name="page_id">page ID</string>
+    <string name="last_name">Last Name</string>
 </resources>
