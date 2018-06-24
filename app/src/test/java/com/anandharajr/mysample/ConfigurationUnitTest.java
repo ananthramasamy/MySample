@@ -27,11 +27,4 @@ public class ConfigurationUnitTest {
         assertNotEquals(progressDialog, null);
     }
 
-
-    @Test
-    public void getCarsListOnSuccessEmptyList() throws Exception {
-
-    }
-
-
 }

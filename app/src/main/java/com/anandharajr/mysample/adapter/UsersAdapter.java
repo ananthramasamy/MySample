@@ -68,7 +68,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             LastNameTV.setText(item.getLast_name());
             if (item.getBitmapAvatar() == null) {
 
-
                 Glide.with(mContext)
                         .load(item.getAvatar())
                         .apply(RequestOptions.circleCropTransform())
