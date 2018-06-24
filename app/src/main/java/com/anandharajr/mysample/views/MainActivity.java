@@ -40,8 +40,7 @@ import com.anandharajr.mysample.utils.Configuration;
 import com.anandharajr.mysample.utils.MyDividerItemDecoration;
 import com.anandharajr.mysample.utils.UserServiceAPI;
 import com.anandharajr.mysample.utils.UserServiceLocal;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -90,9 +89,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 FirstNameTV.setText(item.getFirst_name());
                 LastNameTV.setText(item.getLast_name());
                 if (item.getBitmapAvatar() == null) {
-                    Glide.with(mContext)
-                            .load(item.getAvatar())
-                            .apply(RequestOptions.circleCropTransform())
+                    Picasso.with(mContext).load(item.getAvatar())
+                            .fit().centerInside()
+                            .placeholder(R.drawable.ic_autore_new)
+                            .error(R.drawable.ic_autore_new)
                             .into(UserProfileIV);
                 } else {
                     UserProfileIV.setImageBitmap(item.getBitmapAvatar());
